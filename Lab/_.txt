@@ -1,0 +1,163 @@
+#-------------Assignment 2(Linear convolution)
+import numpy as np
+h=[1,2,3,4,5]
+x=[1,2,3,4,5,6]
+print("Convolution by Built in Function: ",np.convolve(x,h))
+hlen=len(h)
+xlen=len(x)
+ylen=hlen+xlen-1
+h=np.pad(h,(0,ylen-hlen),'constant')
+x=np.pad(x,(0,ylen-xlen),'constant')
+y=np.zeros(ylen)
+for i in range(ylen):
+  for j in range(ylen):
+    if i>=j:
+      y[i]=y[i]+x[i-j]*h[j]
+print("Linear Convolution by  User Function: ",y)
+
+
+#-------------Assignment 3(Cross-Correlation)
+import numpy as np
+h=[1,2,3,4,5]
+x=[1,2,3,4,5,6]
+print("Correlation by Built in Function: ",np.correlate(x,h,'full'))
+h=h[::-1]
+hlen=len(h)
+xlen=len(x)
+ylen=hlen+xlen-1
+x=np.pad(x,(0,ylen-xlen),'constant')
+h=np.pad(h,(0,ylen-hlen),'constant')
+y=np.convolve(x,h)
+y=y[0:ylen]
+print("Correlation by User Function: ",y)
+
+
+#-------------Assignment 4(Auto-Correlation)
+import numpy as np
+temp=input("Enter the numbers of the x[n]:")
+temp=temp.split()# string -> list
+x=[]
+for i in temp:
+  x.append(int(i))# list -> numpy.ndarray
+h=x[::-1]
+print(x,h)
+print("AutoCorrelation by Built In Function: ",np.correlate(x,x,'full'))
+hlen=len(h)
+xlen=len(x)
+ylen=hlen+xlen-1
+x=np.pad(x,(0,ylen-xlen),'constant')
+h=np.pad(h,(0,ylen-hlen),'constant')
+y=np.convolve(x,h)
+y=y[0:ylen]
+print("AutoCorrelation by User Function: ",y)
+
+
+#-------------Assignment 5(Fourier Series of Periodic Signal)
+import numpy as np
+import matplotlib.pyplot as plt
+x=np.arange(0,1,0.001)
+f1=300
+f2=100
+f3=400
+signal=np.sin(2*np.pi*f1*x)+np.sin(2*np.pi*f2*x)+np.sin(2*np.pi*f3*x)
+L=np.size(x)
+N=2000
+c=np.zeros(N)
+for k in range(N):
+  for n in range(L):
+    c[k]=c[k] + signal[n]*np.exp((-1j)*2*np.pi*k*n/N)
+  c[k]=c[k]/N
+print("Fourier Series for DT Signal Is: ",c)
+plt.plot(np.abs(c))
+plt.title("Fourier Series")
+
+
+#-------------Assignment 6(DFT)
+import numpy as np
+from scipy.fft import fft,ifft
+temp=input("Enter the numbers of x(n)\n")
+temp=temp.split()
+x=[]
+for i in temp:
+  x.append(int(i))
+xx=np.zeros(len(x),dtype=complex)
+N=len(x)
+for k in range(N):
+  for n in range(N):
+    xx[k]=xx[k]+x[n]*np.exp((-1j)*2*np.pi*k*n/N)
+print("DFT by Built in Function: ",np.fft.fft(x))
+xx=np.around(xx,decimals=1)
+print("DFT by User Function: ",xx)
+
+
+#-------------Assignment 7(Inverse DFT)
+import numpy as np
+from scipy.fft import fft,ifft
+temp=input("Enter the numbers of x(n)\n")
+temp=temp.split()
+x=[]
+for i in temp:
+  x.append(int(i))
+xx=np.zeros(len(x),dtype=complex)
+xx=np.fft.fft(x)
+print("DFT of the given input is: ",xx)
+N=len(xx)
+ix=[]
+ix=np.zeros(N)
+for k in range(N):
+  for n in range(N):
+    ix[k]=ix[k]+xx[n]*np.exp((1j)*2*np.pi*k*n/N)
+  ix[k]=(ix[k]/N)
+print(ix)
+
+
+#-------------Assignment 8(Response of FIR Filter)
+import numpy as np
+from scipy.fft import fft,ifft
+temp=input("Enter the numbers of x(n)\n")
+temp=temp.split()
+x=[]
+for i in temp:
+  x.append(int(i))
+temp=input("Enter the number of h(n)\n")
+temp=temp.split()
+h=[]
+for i in temp:
+  h.append(int(i))
+xlen=len(x)
+hlen=len(h)
+ylen=xlen+hlen-1
+x=np.pad(x,(0,ylen-xlen),'constant')
+h=np.pad(h,(0,ylen-hlen),'constant')
+X=np.zeros(ylen)
+H=np.zeros(ylen)
+X=np.fft.fft(x)
+H=np.fft.fft(h)
+Y=np.multiply(X,H)
+y=np.fft.ifft(Y)
+y=np.around(y,decimals=1)
+print("Response of FIR Filter by means of DFT and IDFT",y)
+print("Response of FIR Filter by means of DFT and IDFT",end="")
+for i in y:
+  print("",i.real,end=", ")
+print("")
+
+
+#-------------Assignment 10(Radix 2 FFT)
+import numpy as np
+x=[1,2,4,8,16,32,64,128]
+def FFT(x):
+  N=len(x)
+  if N<=1:
+    return x
+  #divide
+  even=FFT(x[0::2]) #from x[0] take every 2nd elements
+  odd=FFT(x[1::2]) #from 1 take every 2nd elements
+  temp=np.zeros(N,dtype=complex)
+  for i in range(N//2):
+    temp[i]=even[i]+np.exp((-1j)*2*np.pi*i/N)*odd[i]
+    temp[i+N//2]=even[i]-np.exp((-1j)*2*np.pi*i/N)*odd[i]
+  return temp  
+X=FFT(x)
+X=np.around(X,decimals=1)
+print("FFT by Radix-2 algorithm where N=8",X)
